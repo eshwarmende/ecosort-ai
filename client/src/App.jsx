@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import {
   Upload,
@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   XCircle,
   HelpCircle,
-  Info
+  Info,
+  Camera
 } from "lucide-react";
 
 function App() {
@@ -21,7 +22,81 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const [facingMode, setFacingMode] = useState("environment");
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+
+  // Initialize and update webcam feed
+  useEffect(() => {
+    let activeStream = null;
+
+    const initCamera = async () => {
+      if (!isCameraActive) return;
+      try {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((track) => track.stop());
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: facingMode }
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        setCameraStream(stream);
+        activeStream = stream;
+      } catch (err) {
+        console.error("Camera access error:", err);
+        alert("Failed to access camera. Please check your browser permissions.");
+        setIsCameraActive(false);
+      }
+    };
+
+    initCamera();
+
+    return () => {
+      if (activeStream) {
+        activeStream.getTracks().forEach((track) => track.stop());
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCameraActive, facingMode]);
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+      setCameraStream(null);
+    }
+    setIsCameraActive(false);
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = videoRef.current.videoWidth || 640;
+    canvas.height = videoRef.current.videoHeight || 480;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const capturedFile = new File([blob], `capture-${Date.now()}.jpg`, {
+          type: "image/jpeg",
+        });
+        setFile(capturedFile);
+        setImage(URL.createObjectURL(capturedFile));
+        stopCamera();
+      },
+      "image/jpeg",
+      0.95
+    );
+  };
+
+  const toggleFacingMode = () => {
+    setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
+  };
 
   const handleImage = (e) => {
     const selected = e.target.files[0];
@@ -165,7 +240,48 @@ function App() {
           <section className={`transition-all duration-500 ${result ? "lg:col-span-5" : "w-full"}`}>
             <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl shadow-emerald-500/5 border border-emerald-50/50 p-6 md:p-8 flex flex-col h-full hover:shadow-2xl hover:shadow-emerald-500/8 transition-all duration-300">
               
-              {!image ? (
+              {isCameraActive ? (
+                /* Camera Mode */
+                <div className="flex-1 flex flex-col justify-between">
+                  <div className="relative rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-slate-900 aspect-video flex items-center justify-center">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      className={`w-full h-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""}`}
+                    />
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={toggleFacingMode}
+                        title="Switch Camera"
+                        className="bg-white/90 hover:bg-white text-slate-700 p-2.5 rounded-xl border border-slate-200/50 shadow-md active:scale-95 transition-all cursor-pointer"
+                      >
+                        <RefreshCw size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 mt-6">
+                    <button
+                      id="btn-cancel-camera"
+                      onClick={stopCamera}
+                      className="flex-1 flex items-center justify-center gap-2 border-2 border-slate-200 hover:border-rose-200 hover:bg-rose-50/50 hover:text-rose-700 transition-all duration-200 py-3.5 rounded-xl font-bold text-slate-600 text-sm active:scale-[0.98] cursor-pointer"
+                    >
+                      <XCircle size={16} />
+                      Cancel
+                    </button>
+                    <button
+                      id="btn-capture-photo"
+                      onClick={capturePhoto}
+                      className="flex-[2] flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 transition-all duration-200 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-emerald-600/10 active:scale-[0.98] cursor-pointer"
+                    >
+                      <Camera size={16} />
+                      Capture Photo
+                    </button>
+                  </div>
+                </div>
+              ) : !image ? (
                 /* Dropzone Area */
                 <label
                   id="waste-dropzone"
@@ -187,6 +303,27 @@ function App() {
                   <p className="text-slate-500 mt-2 text-sm max-w-xs leading-relaxed">
                     Drag and drop your image here, or <span className="text-emerald-600 font-semibold underline decoration-2 decoration-emerald-200">browse file</span> from your device
                   </p>
+
+                  <div className="flex items-center gap-3 my-4 w-full max-w-xs">
+                    <div className="h-[1px] bg-slate-200 flex-1"></div>
+                    <span className="text-xs font-bold text-slate-400 uppercase">Or</span>
+                    <div className="h-[1px] bg-slate-200 flex-1"></div>
+                  </div>
+
+                  <button
+                    type="button"
+                    id="btn-open-camera"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsCameraActive(true);
+                    }}
+                    className="flex items-center gap-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100/80 px-5 py-2.5 rounded-xl border border-emerald-200/60 text-sm font-bold shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Camera size={16} />
+                    Scan with Camera
+                  </button>
+
                   <div className="mt-6 flex flex-wrap gap-2 justify-center">
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-emerald-100 text-emerald-800">PNG</span>
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-emerald-100 text-emerald-800">JPG</span>
