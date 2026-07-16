@@ -5,13 +5,14 @@ const cors = require("cors");
 const multer = require("multer");
 const fs = require("fs");
 const axios = require("axios");
+const os = require("os");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ dest: os.tmpdir() });
 
 app.get("/", (req, res) => {
     res.send("🚀 EcoSort AI Backend Running");
@@ -33,10 +34,9 @@ app.post("/analyze", upload.single("image"), async (req, res) => {
         const response = await axios.post(
             "https://openrouter.ai/api/v1/chat/completions",
             {
-                model: "meta-llama/llama-3.2-11b-vision-instruct:free",
-
-                max_tokens: 300,
-
+                model: "google/gemini-2.5-flash",
+                response_format: { type: "json_object" },
+                max_tokens: 500,
                 messages: [
                     {
                         role: "user",
@@ -44,17 +44,14 @@ app.post("/analyze", upload.single("image"), async (req, res) => {
                             {
                                 type: "text",
                                 text: `You are EcoSort AI.
-
 Analyze this waste image.
-
 Return ONLY valid JSON.
-
 {
-  "waste":"",
-  "category":"",
-  "bin":"",
-  "recyclable":"",
-  "tip":""
+  "waste": "",
+  "category": "",
+  "bin": "",
+  "recyclable": "",
+  "tip": ""
 }`
                             },
                             {
@@ -81,15 +78,20 @@ Return ONLY valid JSON.
             fs.unlinkSync(req.file.path);
         }
 
-        let text = response.data.choices[0].message.content;
+        let text = response.data.choices[0]?.message?.content;
+        if (!text) {
+            throw new Error("No response received from the AI model.");
+        }
 
-        text = text
-            .replace(/```json/g, "")
-            .replace(/```/g, "")
-            .trim();
+        console.log("Raw Response Content:", text);
 
-        const result = JSON.parse(text);
+        // Extract JSON if it is wrapped in markdown or other text
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            text = jsonMatch[0];
+        }
 
+        const result = JSON.parse(text.trim());
         res.json(result);
 
     } catch (err) {
@@ -106,6 +108,8 @@ Return ONLY valid JSON.
     }
 });
 
-app.listen(5000, () => {
+const server = app.listen(5000, () => {
     console.log("🚀 Server running on http://localhost:5000");
 });
+
+module.exports = app;
