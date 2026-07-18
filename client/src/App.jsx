@@ -60,7 +60,7 @@ function App() {
         activeStream.getTracks().forEach((track) => track.stop());
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [isCameraActive, facingMode]);
 
   const stopCamera = () => {
@@ -181,7 +181,7 @@ function App() {
     }
   };
 
-  // Helper to normalize and check if the waste is recyclable
+  
   const getRecyclableStatus = (val) => {
     if (!val) return { text: "Unknown", color: "text-gray-500 bg-gray-50 border-gray-200", icon: HelpCircle };
     const s = String(val).toLowerCase();
@@ -192,7 +192,7 @@ function App() {
     return { text: "Non-Recyclable", color: "text-rose-700 bg-rose-50/80 border-rose-200", icon: XCircle };
   };
 
-  // Helper to map recommended bin to appropriate styles
+  
   const getBinStyle = (binName) => {
     if (!binName) return { color: "bg-gray-50 text-gray-700 border-gray-200", emoji: "🗑️" };
     const name = binName.toLowerCase();
@@ -218,7 +218,7 @@ function App() {
   return (
     <div className="min-h-screen bg-radial from-emerald-50/40 via-green-50/60 to-emerald-100/40 font-sans text-slate-800 p-4 md:p-8 lg:p-12 flex flex-col items-center">
       
-      {/* Header Banner */}
+      
       <header className="w-full max-w-6xl flex flex-col items-center text-center mb-8 md:mb-12">
         <div className="inline-flex items-center gap-3.5 bg-emerald-500/10 backdrop-blur-md px-6 py-2.5 rounded-full border border-emerald-500/20 shadow-xs mb-4 animate-bounce-slow">
           <Leaf className="text-emerald-600 animate-pulse" size={24} />
@@ -232,16 +232,16 @@ function App() {
         </p>
       </header>
 
-      {/* Main Container */}
+      
       <main className="w-full max-w-6xl">
         <div className={`grid gap-8 transition-all duration-500 ${result ? "grid-cols-1 lg:grid-cols-12" : "grid-cols-1 max-w-2xl mx-auto"}`}>
           
-          {/* Left Column: Image Upload & Preview */}
+         
           <section className={`transition-all duration-500 ${result ? "lg:col-span-5" : "w-full"}`}>
             <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl shadow-emerald-500/5 border border-emerald-50/50 p-6 md:p-8 flex flex-col h-full hover:shadow-2xl hover:shadow-emerald-500/8 transition-all duration-300">
               
               {isCameraActive ? (
-                /* Camera Mode */
+               
                 <div className="flex-1 flex flex-col justify-between">
                   <div className="relative rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-slate-900 aspect-video flex items-center justify-center">
                     <video
@@ -282,7 +282,7 @@ function App() {
                   </div>
                 </div>
               ) : !image ? (
-                /* Dropzone Area */
+                
                 <label
                   id="waste-dropzone"
                   onDragOver={handleDragOver}
@@ -385,10 +385,10 @@ function App() {
             </div>
           </section>
 
-          {/* Right Column: Loading or Results */}
+         
           <section className={`transition-all duration-500 ${result ? "lg:col-span-7 block" : loading ? "block" : "hidden"}`}>
             
-            {/* Loading Indicator */}
+            
             {loading && (
               <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-emerald-50 p-12 flex flex-col items-center justify-center h-full shadow-xl shadow-emerald-500/5 min-h-[350px]">
                 <div className="relative flex items-center justify-center">
@@ -402,11 +402,11 @@ function App() {
               </div>
             )}
 
-            {/* Results Output */}
+            
             {result && (
               <div id="waste-analysis-results" className="bg-white rounded-3xl shadow-xl shadow-emerald-500/5 border border-slate-100/50 p-6 md:p-8 flex flex-col justify-between h-full hover:shadow-2xl hover:shadow-emerald-500/8 transition-all duration-300 animate-fadeIn">
                 <div>
-                  {/* Result Header */}
+                  
                   <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
                     <div className="flex items-center gap-3">
                       <div className="bg-emerald-50 p-2.5 rounded-xl border border-emerald-100">
@@ -425,10 +425,10 @@ function App() {
                     )}
                   </div>
 
-                  {/* Result Details Grid */}
+                 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     
-                    {/* Waste Item */}
+                   
                     <div className="bg-slate-50/50 rounded-2xl border border-slate-100 p-5 flex items-start gap-4 hover:bg-slate-50 transition-colors">
                       <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-xs text-slate-700">
                         <Trash2 size={20} />
@@ -439,7 +439,7 @@ function App() {
                       </div>
                     </div>
 
-                    {/* Category */}
+                    
                     <div className="bg-slate-50/50 rounded-2xl border border-slate-100 p-5 flex items-start gap-4 hover:bg-slate-50 transition-colors">
                       <div className="bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-xs text-slate-700">
                         <Recycle size={20} />
@@ -450,7 +450,7 @@ function App() {
                       </div>
                     </div>
 
-                    {/* Recommended Bin */}
+                    
                     <div className={`col-span-1 md:col-span-2 border p-5 rounded-2xl flex items-center justify-between ${binStyle?.color || "bg-slate-50 text-slate-700"}`}>
                       <div className="flex items-center gap-4">
                         <span className="text-3xl leading-none">{binStyle?.emoji || "🗑️"}</span>
@@ -465,7 +465,7 @@ function App() {
                   </div>
                 </div>
 
-                {/* Recycling Tip Section */}
+               
                 <div className="bg-amber-50/80 border border-amber-200/60 rounded-2xl p-5 mt-6 flex gap-4 items-start shadow-xs">
                   <div className="bg-white p-2 rounded-xl shadow-xs border border-amber-100 text-amber-600 mt-0.5">
                     <Lightbulb size={20} className="fill-amber-50 animate-pulse" />
@@ -484,7 +484,7 @@ function App() {
         </div>
       </main>
 
-      {/* Info Section / Footer */}
+      
       <footer className="w-full max-w-6xl mt-12 md:mt-16 pt-8 border-t border-slate-200/60 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-400">
         <div className="flex items-center gap-2">
           <Info size={14} className="text-slate-300" />
