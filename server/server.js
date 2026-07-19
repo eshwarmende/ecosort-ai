@@ -10,7 +10,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Use memory storage — disk writes are unreliable on Vercel serverless
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.get("/", (req, res) => {
@@ -27,7 +26,6 @@ app.post("/analyze", upload.single("image"), async (req, res) => {
             });
         }
 
-        // File is already in memory — no disk read needed
         const base64Image = req.file.buffer.toString("base64");
 
         const response = await axios.post(
@@ -80,7 +78,6 @@ Return ONLY valid JSON.
 
         console.log("Raw Response Content:", text);
 
-        // Extract JSON if it is wrapped in markdown or other text
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
             text = jsonMatch[0];

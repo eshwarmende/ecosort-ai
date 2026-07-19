@@ -28,7 +28,6 @@ function App() {
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
 
-  // Initialize and update webcam feed
   useEffect(() => {
     let activeStream = null;
 
@@ -241,7 +240,6 @@ function App() {
             <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl shadow-emerald-500/5 border border-emerald-50/50 p-6 md:p-8 flex flex-col h-full hover:shadow-2xl hover:shadow-emerald-500/8 transition-all duration-300">
               
               {isCameraActive ? (
-               
                 <div className="flex-1 flex flex-col justify-between">
                   <div className="relative rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-slate-900 aspect-video flex items-center justify-center">
                     <video
@@ -282,7 +280,6 @@ function App() {
                   </div>
                 </div>
               ) : !image ? (
-                
                 <label
                   id="waste-dropzone"
                   htmlFor="waste-file-input"
@@ -340,7 +337,6 @@ function App() {
                   />
                 </label>
               ) : (
-                /* Image Preview Mode */
                 <div className="flex-1 flex flex-col justify-between">
                   <div className="relative rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-slate-50 group">
                     <img
@@ -386,7 +382,6 @@ function App() {
             </div>
           </section>
 
-         
           <section className={`transition-all duration-500 ${result ? "lg:col-span-7 block" : loading ? "block" : "hidden"}`}>
             
             
@@ -403,7 +398,6 @@ function App() {
               </div>
             )}
 
-            
             {result && (
               <div id="waste-analysis-results" className="bg-white rounded-3xl shadow-xl shadow-emerald-500/5 border border-slate-100/50 p-6 md:p-8 flex flex-col justify-between h-full hover:shadow-2xl hover:shadow-emerald-500/8 transition-all duration-300 animate-fadeIn">
                 <div>
@@ -426,7 +420,6 @@ function App() {
                     )}
                   </div>
 
-                 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     
                    
@@ -466,7 +459,6 @@ function App() {
                   </div>
                 </div>
 
-               
                 <div className="bg-amber-50/80 border border-amber-200/60 rounded-2xl p-5 mt-6 flex gap-4 items-start shadow-xs">
                   <div className="bg-white p-2 rounded-xl shadow-xs border border-amber-100 text-amber-600 mt-0.5">
                     <Lightbulb size={20} className="fill-amber-50 animate-pulse" />
