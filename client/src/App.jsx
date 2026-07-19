@@ -285,6 +285,7 @@ function App() {
                 
                 <label
                   id="waste-dropzone"
+                  htmlFor="waste-file-input"
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
